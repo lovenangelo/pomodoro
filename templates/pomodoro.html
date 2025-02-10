@@ -1,0 +1,143 @@
+<div class="container" x-data="{
+    sessionLength: 25,
+    breakLength: 5,
+    timeLeft: 25 * 60,
+    nextSessionTime: 25,
+    nextBreakTime: 5,
+    timerActive: false,
+    isBreakTime: false,
+
+    countdown() {
+        if (!this.timerActive) {
+            this.timerActive = true;
+            this.startSession(this.sessionLength);
+        }
+    },
+
+    next() {
+        if (this.isBreakTime) {
+            this.timeLeft = this.nextBreakTime * 60;
+        } else {
+            this.timeLeft = this.nextSessionTime * 60;
+        }
+        this.timerActive = false;
+        this.resetTimer();
+    },
+
+    reset() {
+        this.timeLeft = this.nextSessionTime * 60;
+        this.timerActive = false;
+	this.sessionLength = session.nextSessionTime;
+	this.breakLength = session.nextBreakTime;
+        this.resetTimer();
+    },
+
+    startSession(minutes) {
+        const expiry = new Date(Date.now() + minutes * 60000);
+        this.expiry_date = expiry;
+        this.intervalId = setInterval(() => {
+            this.setRemaining();
+        }, 1000);
+    },
+
+    resetTimer() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+    },
+
+    setRemaining() {
+        const diff = this.expiry_date - Date.now();
+        this.timeLeft = Math.max(0, Math.floor(diff / 1000) + 1);
+        if (this.timeLeft === 0) {
+            this.isBreakTime = !this.isBreakTime;
+            this.next(); // Stop the timer when it reaches 0
+        }
+    },
+
+    get minutes() {
+        return Math.floor(this.timeLeft / 60);
+    },
+
+    get seconds() {
+        return Math.floor(this.timeLeft % 60);
+    },
+
+    format(value) {
+        return (` 0` + parseInt(value)).slice(-2);
+    },
+
+    incrementSession() {
+        if (!this.timerActive) {
+            this.sessionLength++;
+            this.nextSessionTime++;
+            this.timeLeft = this.sessionLength * 60;
+        } else {
+            this.nextSessionTime++;
+        }
+    },
+
+    decrementSession() {
+        if (this.sessionLength > 1) {
+            if (!this.timerActive) {
+                this.sessionLength--;
+                this.nextSessionTime--;
+                this.timeLeft = this.sessionLength * 60;
+            } else {
+                this.nextSessionTime--;
+            }
+        }
+    },
+
+    incrementBreak() {
+        if (!this.timerActive) {
+            this.breakLength++;
+            this.nextBreakTime++;
+        } else {
+            this.nextBreakTime++;
+        }
+    },
+
+    decrementBreak() {
+        if (this.breakLength > 1) {
+            if (!this.timerActive) {
+                this.breakLength--;
+                this.breakTime--;
+            } else {
+                this.breakTime--;
+            }
+        }
+    }
+}">
+	<div class="container-timer">
+		<label>SESSION</label>
+		<div class="timer" id="timer">
+			<h1 x-text="minutes"></h1>:<h1 x-text="format(seconds)"></h1>
+		</div>
+		<div class="controls">
+			<button id="start" x-on:click="countdown()" :disabled="timerActive">Start</button>
+			<button id="reset" x-on:click="reset()">Reset</button>
+		</div>
+	</div>
+
+	<div class="settings">
+		<div class="setting container-black">
+			<div class="container-teal">
+				<button x-on:click="decrementBreak()">-</button>
+				<span x-text="breakLength"></span>
+				<button x-on:click="incrementBreak()">+</button>
+			</div>
+			<label>Break Length</label>
+		</div>
+
+		<div class="setting container-black">
+			<div class="container-teal">
+				<button x-on:click="decrementSession()">-</button>
+				<span x-text="nextSessionTime"></span>
+				<button x-on:click="incrementSession()">+</button>
+			</div>
+			<label>Session Length</label>
+		</div>
+	</div>
+</div>
