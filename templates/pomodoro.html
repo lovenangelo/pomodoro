@@ -1,143 +1,176 @@
-<div class="container" x-data="{
-    sessionLength: 25,
-    breakLength: 5,
-    timeLeft: 25 * 60,
-    nextSessionTime: 25,
-    nextBreakTime: 5,
-    timerActive: false,
-    isBreakTime: false,
+<div class="container" x-data="timer">
+    <input class="hidden-input" type="text" @keyup.space="countdown()" :disabled="isTimerActive">
+    <div class="container-timer">
+        <label x-text="label()"></label>
+        <div class="timer" id="timer">
+            <h1 x-text="format(minutes)"></h1>
+            <h1 x-text="format(seconds)"></h1>
+        </div>
+        <div class="controls">
+            <button id="start" x-on:click="countdown()" :disabled="isTimerActive">Start</button>
+            <button id="reset" x-on:click="reset()">Reset</button>
+        </div>
+    </div>
 
-    countdown() {
-        if (!this.timerActive) {
-            this.timerActive = true;
-            this.startSession(this.sessionLength);
-        }
-    },
+    <div class="settings">
+        <div class="setting container-black">
+            <div class="container-teal">
+                <button x-on:click="decrementBreak()">-</button>
+                <span x-text="nextBreakTime"></span>
+                <button x-on:click="incrementBreak()">+</button>
+            </div>
+            <label>Break Length</label>
+        </div>
 
-    next() {
-        if (this.isBreakTime) {
-            this.timeLeft = this.nextBreakTime * 60;
-        } else {
-            this.timeLeft = this.nextSessionTime * 60;
-        }
-        this.timerActive = false;
-        this.resetTimer();
-    },
-
-    reset() {
-        this.timeLeft = this.nextSessionTime * 60;
-        this.timerActive = false;
-	this.sessionLength = session.nextSessionTime;
-	this.breakLength = session.nextBreakTime;
-        this.resetTimer();
-    },
-
-    startSession(minutes) {
-        const expiry = new Date(Date.now() + minutes * 60000);
-        this.expiry_date = expiry;
-        this.intervalId = setInterval(() => {
-            this.setRemaining();
-        }, 1000);
-    },
-
-    resetTimer() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-    },
-
-    setRemaining() {
-        const diff = this.expiry_date - Date.now();
-        this.timeLeft = Math.max(0, Math.floor(diff / 1000) + 1);
-        if (this.timeLeft === 0) {
-            this.isBreakTime = !this.isBreakTime;
-            this.next(); // Stop the timer when it reaches 0
-        }
-    },
-
-    get minutes() {
-        return Math.floor(this.timeLeft / 60);
-    },
-
-    get seconds() {
-        return Math.floor(this.timeLeft % 60);
-    },
-
-    format(value) {
-        return (` 0` + parseInt(value)).slice(-2);
-    },
-
-    incrementSession() {
-        if (!this.timerActive) {
-            this.sessionLength++;
-            this.nextSessionTime++;
-            this.timeLeft = this.sessionLength * 60;
-        } else {
-            this.nextSessionTime++;
-        }
-    },
-
-    decrementSession() {
-        if (this.sessionLength > 1) {
-            if (!this.timerActive) {
-                this.sessionLength--;
-                this.nextSessionTime--;
-                this.timeLeft = this.sessionLength * 60;
-            } else {
-                this.nextSessionTime--;
-            }
-        }
-    },
-
-    incrementBreak() {
-        if (!this.timerActive) {
-            this.breakLength++;
-            this.nextBreakTime++;
-        } else {
-            this.nextBreakTime++;
-        }
-    },
-
-    decrementBreak() {
-        if (this.breakLength > 1) {
-            if (!this.timerActive) {
-                this.breakLength--;
-                this.breakTime--;
-            } else {
-                this.breakTime--;
-            }
-        }
-    }
-}">
-	<div class="container-timer">
-		<label>SESSION</label>
-		<div class="timer" id="timer">
-			<h1 x-text="minutes"></h1>:<h1 x-text="format(seconds)"></h1>
-		</div>
-		<div class="controls">
-			<button id="start" x-on:click="countdown()" :disabled="timerActive">Start</button>
-			<button id="reset" x-on:click="reset()">Reset</button>
-		</div>
-	</div>
-
-	<div class="settings">
-		<div class="setting container-black">
-			<div class="container-teal">
-				<button x-on:click="decrementBreak()">-</button>
-				<span x-text="breakLength"></span>
-				<button x-on:click="incrementBreak()">+</button>
-			</div>
-			<label>Break Length</label>
-		</div>
-
-		<div class="setting container-black">
-			<div class="container-teal">
-				<button x-on:click="decrementSession()">-</button>
-				<span x-text="nextSessionTime"></span>
-				<button x-on:click="incrementSession()">+</button>
-			</div>
-			<label>Session Length</label>
-		</div>
-	</div>
+        <div class="setting container-black">
+            <div class="container-teal">
+                <button x-on:click="decrementSession()">-</button>
+                <span x-text="nextSessionTime"></span>
+                <button x-on:click="incrementSession()">+</button>
+            </div>
+            <label>Session Length</label>
+        </div>
+    </div>
 </div>
+
+<script>
+    const timer = {
+        currentTime: 25 * 60, // Default session time in minutes
+        nextSessionTime: 25, // Default session time
+        nextBreakTime: 5, // Default break time
+        isBreakTime: false, // Tracks if it's break time
+        isTimerActive: false, // Tracks if the timer is running
+        intervalId: null, // Stores the interval ID
+
+        // Getter for formatted minutes
+        get minutes() {
+            return Math.floor(this.currentTime / 60);
+        },
+
+        // Getter for formatted seconds
+        get seconds() {
+            return this.currentTime % 60;
+        },
+
+        // Format time values to always show 2 digits
+        format(value) {
+            return value < 10 ? `0${value}` : value.toString();
+        },
+
+        // Generate the label based on the timer state
+        label() {
+            if (!this.isTimerActive && !this.isBreakTime) {
+                return "Start Session";
+            } else if (!this.isTimerActive && this.isBreakTime) {
+                return "Start Break";
+            } else {
+                return this.isBreakTime ? "Timer Started | Break Time" : "Timer Started | Focus Time";
+            }
+        },
+
+        // Start or resume the countdown
+        countdown() {
+            if (!this.isTimerActive) {
+                this.isTimerActive = true;
+                this.startSession(this.currentTime);
+            }
+        },
+
+        // Start the session or break
+        startSession(minutes) {
+            const expiry = new Date(Date.now() + minutes * 1000); // Convert to milliseconds
+            this.expiry_date = expiry;
+
+            if (this.intervalId === null) {
+                this.intervalId = setInterval(() => {
+                    this.setRemaining();
+                }, 1000);
+            }
+        },
+
+        // Update the remaining time
+        setRemaining() {
+            const diff = this.expiry_date - Date.now();
+            this.currentTime = Math.max(0, Math.floor(diff / 1000));
+
+            if (this.currentTime === 0) {
+                this.next(); // Transition to the next state (session or break)
+            }
+        },
+
+        // Transition to the next state (session or break)
+        next() {
+            this.removeInterval(); // Clear the current interval
+            this.isTimerActive = false;
+            this.isBreakTime = !this.isBreakTime; // Toggle between session and break
+
+            // Set the next time based on the current state
+            if (this.isBreakTime) {
+                this.currentTime = this.nextBreakTime * 60; // Convert minutes to seconds
+            } else {
+                this.currentTime = this.nextSessionTime * 60; // Convert minutes to seconds
+            }
+        },
+
+        // Reset the timer to the initial state
+        reset() {
+            this.removeInterval();
+            this.currentTime = this.nextSessionTime * 60; // Reset to session time in seconds
+            this.isTimerActive = false;
+            this.isBreakTime = false;
+        },
+
+        // Clear the interval
+        removeInterval() {
+            if (this.intervalId) {
+                clearInterval(this.intervalId);
+                this.intervalId = null;
+            }
+        },
+
+        // Increment session time
+        incrementSession() {
+            if (!this.isTimerActive) {
+                this.nextSessionTime++;
+                this.updateMainTime();
+            }
+        },
+
+        // Decrement session time
+        decrementSession() {
+            if (this.nextSessionTime > 1) {
+                if (!this.isTimerActive) {
+                    this.nextSessionTime--;
+                    this.updateMainTime();
+                }
+            }
+        },
+
+        // Increment break time
+        incrementBreak() {
+            if (!this.isTimerActive) {
+                this.nextBreakTime++;
+                this.updateMainTime();
+            }
+        },
+
+        // Decrement break time
+        decrementBreak() {
+            if (this.nextBreakTime > 1) {
+                if (!this.isTimerActive) {
+                    this.nextBreakTime--;
+                    this.updateMainTime();
+                }
+            }
+        },
+
+        // Update the main time display
+        updateMainTime() {
+            if (this.isBreakTime) {
+                this.currentTime = this.nextBreakTime * 60; // Convert minutes to seconds
+            } else {
+                this.currentTime = this.nextSessionTime * 60; // Convert minutes to seconds
+            }
+        },
+    };
+</script>
