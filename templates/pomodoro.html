@@ -1,5 +1,8 @@
 <div class="container" x-data="timer">
     <div hx-get="/pomodoro/bugle-sound" hx-trigger="load" hx-swap="innerHTML"></div>
+    <div hx-get="/pomodoro/button-sound-1" hx-trigger="load" hx-swap="innerHTML"></div>
+    <div hx-get="/pomodoro/button-sound-2" hx-trigger="load" hx-swap="innerHTML"></div>
+    <div hx-get="/pomodoro/ding-sound" hx-trigger="load" hx-swap="innerHTML"></div>
     <div class="container-timer">
         <label x-text="label()"></label>
         <div class="timer" id="timer">
@@ -35,6 +38,10 @@
 
 <script>
     const timer = {
+        count: 0,
+        autoplay: true,
+        longBreakDuration: 15,
+        mute: false,
         currentTime: 25 * 60, // Default session time in minutes
         nextSessionTime: 25, // Default session time
         nextBreakTime: 5, // Default break time
@@ -70,6 +77,11 @@
 
         // Start or resume the countdown
         countdown() {
+            this.playSound("button1");
+            this.count++;
+            if (!this.autoplay) {
+                this.stopSound("bugle");
+            }
             if (!this.isTimerActive) {
                 this.isTimerActive = true;
                 this.startSession(this.currentTime);
@@ -106,19 +118,27 @@
 
             // Set the next time based on the current state
             if (this.isBreakTime) {
-                this.currentTime = this.nextBreakTime * 60; // Convert minutes to seconds
+                this.playSound("ding");
+                const isLongBreakTime = this.count % 4 == 0 && this.nextBreakTime == 5;
+                this.currentTime = isLongBreakTime ? this.longBreakDuration * 60 : this.nextBreakTime * 60; // Convert minutes to seconds
             } else {
                 this.playSound("bugle");
                 this.currentTime = this.nextSessionTime * 60; // Convert minutes to seconds
+            }
+            if (this.autoplay) {
+                this.countdown()
             }
         },
 
         // Reset the timer to the initial state
         reset() {
+            this.playSound("button1");
             this.removeInterval();
             this.currentTime = this.nextSessionTime * 60; // Reset to session time in seconds
             this.isTimerActive = false;
             this.isBreakTime = false;
+            this.count = 0;
+            this.stopSound();
         },
 
         // Clear the interval
@@ -131,8 +151,9 @@
 
         // Increment session time
         incrementSession() {
+            this.playSound("button2");
+            this.nextSessionTime++;
             if (!this.isTimerActive) {
-                this.nextSessionTime++;
                 this.updateMainTime();
             }
         },
@@ -140,8 +161,9 @@
         // Decrement session time
         decrementSession() {
             if (this.nextSessionTime > 1) {
+                this.playSound("button2");
+                this.nextSessionTime--;
                 if (!this.isTimerActive) {
-                    this.nextSessionTime--;
                     this.updateMainTime();
                 }
             }
@@ -149,8 +171,9 @@
 
         // Increment break time
         incrementBreak() {
+            this.playSound("button2");
+            this.nextBreakTime++;
             if (!this.isTimerActive) {
-                this.nextBreakTime++;
                 this.updateMainTime();
             }
         },
@@ -158,8 +181,9 @@
         // Decrement break time
         decrementBreak() {
             if (this.nextBreakTime > 1) {
+                this.playSound("button2");
+                this.nextBreakTime--;
                 if (!this.isTimerActive) {
-                    this.nextBreakTime--;
                     this.updateMainTime();
                 }
             }
@@ -176,8 +200,19 @@
 
         // Playing sounds
         playSound(soundname) {
+            if (!this.mute) {
+                var audio = document.getElementById(soundname);
+                audio.pause(); // Stop the currently playing sound
+                audio.currentTime = 0; // Reset the audio to start from the beginning
+                audio.play();
+            }
+        },
+
+        // Playing sounds
+        stopSound(soundname) {
             var thissound = document.getElementById(soundname);
-            thissound.play();
+            if (thissound != null)
+                thissound.pause();
         }
     };
 </script>
