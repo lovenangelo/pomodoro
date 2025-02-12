@@ -1,45 +1,65 @@
-<div class="container" x-data="timer">
-    <div hx-get="/pomodoro/bugle-sound" hx-trigger="load" hx-swap="innerHTML"></div>
-    <div hx-get="/pomodoro/button-sound-1" hx-trigger="load" hx-swap="innerHTML"></div>
-    <div hx-get="/pomodoro/button-sound-2" hx-trigger="load" hx-swap="innerHTML"></div>
-    <div hx-get="/pomodoro/ding-sound" hx-trigger="load" hx-swap="innerHTML"></div>
-    <div class="container-timer">
-        <label x-text="label()"></label>
-        <div class="timer" id="timer">
-            <h1 x-text="format(minutes)"></h1>
-            <h1 x-text="format(seconds)"></h1>
-        </div>
-        <div class="controls">
-            <button id="start" x-on:click="countdown()" :disabled="isTimerActive">Start</button>
-            <button id="reset" x-on:click="reset()">Reset</button>
-        </div>
-    </div>
-
-    <div class="settings">
-        <div class="setting container-black">
-            <div class="container-teal">
-                <button x-on:click="decrementBreak()">-</button>
-                <span x-text="nextBreakTime"></span>
-                <button x-on:click="incrementBreak()">+</button>
+<div x-data="timer">
+    <div class="text-center bg-gray-300 p-8 rounded-lg shadow-lg border-4 border-black">
+        <div hx-get="/pomodoro/bugle-sound" hx-trigger="load" hx-swap="innerHTML"></div>
+        <div hx-get="/pomodoro/button-sound-1" hx-trigger="load" hx-swap="innerHTML"></div>
+        <div hx-get="/pomodoro/button-sound-2" hx-trigger="load" hx-swap="innerHTML"></div>
+        <div hx-get="/pomodoro/ding-sound" hx-trigger="load" hx-swap="innerHTML"></div>
+        <div class="bg-white p-6 rounded-lg shadow-md border-2 border-black">
+            <label x-text="label()"></label>
+            <div class="text-8xl font-bold m-4 flex w-96 items-center justify-center" id="timer">
+                <h1 x-text="format(minutes)"></h1>
+                <span>:</span>
+                <h1 x-text="format(seconds)"></h1>
             </div>
-            <label>Break Length</label>
+            <div class="mt-8">
+                <button
+                    class="hover:cursor-pointer hover:bg-[#323232] px-4 py-2 bg-transparent text-black font-semibold border-2 border-black rounded-md hover:text-white transition"
+                    id="start" x-on:click="countdown()" :disabled="isTimerActive">Start</button>
+                <button
+                    class="hover:cursor-pointer hover:bg-[#323232] px-4 py-2 bg-transparent text-black font-semibold border-2 border-black rounded-md hover:text-white transition"
+                    id="reset" x-on:click="reset()">Reset</button>
+            </div>
         </div>
 
-        <div class="setting container-black">
-            <div class="container-teal">
-                <button x-on:click="decrementSession()">-</button>
-                <span x-text="nextSessionTime"></span>
-                <button x-on:click="incrementSession()">+</button>
+        <div class="flex justify-between mt-5 w-full gap-4">
+            <div
+                class="w-full flex flex-col text-3xl items-center p-4 rounded-lg shadow-md bg-[#323232] p-4 rounded-lg w-full max-w-sm">
+                <div class="bg-[#99BCC0] w-full p-6 rounded-lg">
+                    <button class="text-white hover:cursor-pointer" x-on:click="decrementBreak()">-</button>
+                    <span x-text="nextBreakTime"></span>
+                    <button class="text-white hover:cursor-pointer" x-on:click="incrementBreak()">+</button>
+                </div>
+                <label class="text-lg text-white font-bold text-black mt-2">Break Length</label>
             </div>
-            <label>Session Length</label>
+            <div
+                class="w-full text-3xl flex flex-col items-center p-4 rounded-lg shadow-md bg-[#323232] p-4 rounded-lg w-full max-w-sm">
+                <div class="bg-[#99BCC0] w-full p-6 rounded-lg">
+                    <button class="text-white hover:cursor-pointer" x-on:click="decrementSession()">-</button>
+                    <span x-text="nextSessionTime"></span>
+                    <button class="text-white hover:cursor-pointer" x-on:click="incrementSession()">+</button>
+                </div>
+                <label class="text-lg text-white font-bold mt-2">Session Length</label>
+            </div>
         </div>
     </div>
+    <div class="flex mt-2 w-full justify-between text-white">
+        <div class="flex space-x-2">
+            <p class="hover:underline hover:cursor-pointer" x-text="autoplay ? 'Autoplay Enabled' : 'Autoplay Disabled'"
+                x-on:click="toggleAutoplay()">
+            </p>
+            <p>//</p>
+            <p class="hover:underline hover:cursor-pointer" x-text="mute ? 'Unmute' : 'Mute'" x-on:click="toggleMute()">
+            </p>
+        </div>
+        <p class="font-bold">v0.0.1</p>
+    </div>
+</div>
 </div>
 
 <script>
     const timer = {
         count: 0,
-        autoplay: true,
+        autoplay: false,
         longBreakDuration: 15,
         mute: false,
         currentTime: 25 * 60, // Default session time in minutes
@@ -48,7 +68,6 @@
         isBreakTime: false, // Tracks if it's break time
         isTimerActive: false, // Tracks if the timer is running
         intervalId: null, // Stores the interval ID
-
         // Getter for formatted minutes
         get minutes() {
             return Math.floor(this.currentTime / 60);
@@ -132,9 +151,13 @@
 
         // Reset the timer to the initial state
         reset() {
-            this.playSound("button1");
+            if (this.nextSessionTime != 25 || this.nextBreakTime != 5 || this.currentTime != 25 * 60) {
+                this.playSound("button1");
+            }
             this.removeInterval();
-            this.currentTime = this.nextSessionTime * 60; // Reset to session time in seconds
+            this.currentTime = 25 * 60; // Reset to session time in seconds
+            this.nextSessionTime = 25; // Reset to session time in seconds
+            this.nextBreakTime = 5; // Reset to session time in seconds
             this.isTimerActive = false;
             this.isBreakTime = false;
             this.count = 0;
@@ -202,6 +225,7 @@
         playSound(soundname) {
             if (!this.mute) {
                 var audio = document.getElementById(soundname);
+                audio.volume = 0.2; // adjust volume
                 audio.pause(); // Stop the currently playing sound
                 audio.currentTime = 0; // Reset the audio to start from the beginning
                 audio.play();
@@ -213,6 +237,19 @@
             var thissound = document.getElementById(soundname);
             if (thissound != null)
                 thissound.pause();
+        },
+
+        // toggleAutoplay
+        toggleAutoplay() {
+            this.playSound("button1");
+            this.autoplay = !this.autoplay;
+        },
+
+        // toggleMute
+        toggleMute() {
+            this.playSound("button1");
+            this.mute = !this.mute;
         }
+
     };
 </script>

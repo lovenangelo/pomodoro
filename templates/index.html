@@ -10,131 +10,18 @@
 		integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
 		crossorigin="anonymous"></script>
 	<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-	<style>
-		body {
-			font-family: Arial, sans-serif;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			height: 100vh;
-			background-color: #323232;
-			margin: 0;
-		}
-
-		.container {
-			text-align: center;
-			background-color: #d0d6d3;
-			padding: 32px;
-			border-radius: 10px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-			border-color: black;
-			border-style: solid;
-			border-width: 5px;
-		}
-
-		.hidden-input {
-			position: absolute;
-			opacity: 0;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-			z-index: -1;
-		}
-
-		.timer {
-			font-size: 36px;
-			margin-bottom: 10px;
-			display: flex;
-			width: 100%;
-			align-items: center;
-			justify-content: center;
-		}
-
-		.timer h1+h1:before {
-			content: ":"
-		}
-
-		.container-timer {
-			background-color: white;
-			padding: 20px;
-			border-radius: 10px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-			border-color: black;
-			border-style: solid;
-			border-width: 3px;
-
-		}
-
-		.container-timer>label {
-			font-size: 24px;
-			font-weight: bold;
-			margin-top: 10px;
-			color: black;
-		}
-
-		.controls button {
-			padding: 10px 20px;
-			margin: 5px;
-			font-size: 1em;
-			cursor: pointer;
-			background-color: transparent;
-			border-color: black;
-			border-width: 2px;
-			border-radius: 10px;
-			color: black;
-			font-weight: 600;
-		}
-
-		.settings {
-			display: flex;
-			justify-content: space-around;
-			margin-top: 20px;
-		}
-
-		.setting {
-			display: flex;
-			align-items: center;
-			flex-direction: column;
-			border-radius: 10px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-			margin-left: 5px;
-			margin-right: 5px;
-		}
-
-		.setting button {
-			padding: 5px 10px;
-			margin: 5px;
-			font-size: 3em;
-			cursor: pointer;
-			background-color: transparent;
-			border: none;
-			color: white;
-		}
-
-		.container-teal {
-			background-color: #99BCC0;
-			padding: 20px;
-		}
-
-		.container-teal>span {
-			font-size: 3em;
-		}
-
-		.container-black {
-			background-color: #323232;
-			padding: 10px;
-		}
-
-		label {
-			font-size: 12px;
-			margin-top: 10px;
-			color: white;
-		}
-	</style>
+	<link href="/pomodoro/styles/output.css" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..800;1,100..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+		rel="stylesheet">
 </head>
 
-<body>
-	<div hx-get="/pomodoro/app" hx-trigger="load" hx-swap="innerHTML"></div>
+<body class="font-[Roboto_Mono] bg-[#323232] h-screen relative select-none">
+	<div class="flex justify-center items-center h-full">
+		<div hx-get="/pomodoro/app" hx-trigger="load" hx-swap="innerHTML"></div>
+	</div>
+	<div class="h-2 absolute w-full bg-gray-300 bottom-0">
 </body>
 
 </html>

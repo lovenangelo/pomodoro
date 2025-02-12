@@ -1,7 +1,7 @@
 use std::error::Error;
 
-use actix_files::NamedFile;
-use actix_web::{get, web, App, HttpRequest, HttpServer, Responder};
+use actix_files::{Files, NamedFile};
+use actix_web::{get, web, App, HttpServer, Responder};
 use askama_actix::Template;
 use std::env;
 
@@ -34,7 +34,7 @@ async fn pomodoro() -> impl Responder {
 async fn bugle_sound() -> impl Responder {
     SoundTemplate {
         id: "bugle",
-        path: "http://127.0.0.1:8080/pomodoro/audio/reveille.mp3",
+        path: "/pomodoro/audio/reveille.mp3",
     }
 }
 
@@ -42,7 +42,7 @@ async fn bugle_sound() -> impl Responder {
 async fn button_sound_1() -> impl Responder {
     SoundTemplate {
         id: "button1",
-        path: "http://127.0.0.1:8080/pomodoro/audio/button-sound-1.mp3",
+        path: "/pomodoro/audio/button-sound-1.mp3",
     }
 }
 
@@ -50,7 +50,7 @@ async fn button_sound_1() -> impl Responder {
 async fn button_sound_2() -> impl Responder {
     SoundTemplate {
         id: "button2",
-        path: "http://127.0.0.1:8080/pomodoro/audio/button-sound-2.mp3",
+        path: "/pomodoro/audio/button-sound-2.mp3",
     }
 }
 
@@ -58,7 +58,7 @@ async fn button_sound_2() -> impl Responder {
 async fn ding_sound() -> impl Responder {
     SoundTemplate {
         id: "ding",
-        path: "http://127.0.0.1:8080/pomodoro/audio/ding.mp3",
+        path: "/pomodoro/audio/ding.mp3",
     }
 }
 
@@ -81,7 +81,8 @@ async fn main() -> std::io::Result<()> {
                 .service(button_sound_1)
                 .service(button_sound_2)
                 .service(ding_sound)
-                .service(get_audio),
+                .service(get_audio)
+                .service(Files::new("/styles", "./styles").show_files_listing()),
         )
     })
     .bind(("127.0.0.1", 8080))?
