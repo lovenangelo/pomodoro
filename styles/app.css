@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+ul {
+	height: 20px;
+	width: 400px;
+
+	li {
+		display: inline-block;
+		height: 20px;
+		border: 1px solid white;
+		margin-right: 4px;
+
+		&:nth-child(5n) {
+			transform: rotate(300deg);
+			height: 30px;
+			position: relative;
+			left: -15px;
+			top: 5px;
+			margin-right: 1em;
+			margin-top: -10px;
+		}
+	}
+}

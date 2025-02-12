@@ -31,6 +31,15 @@
 			alt="Funny Cat GIF" class="w-full max-w-md mx-auto">
 		<h1 class="mt-2 text-white">One more session, let's go!!!</h1>
 	</div>
+	<div class="absolute left-24 top-50 h-min flex flex-col italic items-start p-4 text-white">
+		<div class="flex space-x-2 mb-2">
+			<h2 class="text-xl font-light mb-2">Pomostreak: </h2>
+			<h2 class="text-xl font-light mb-2" x-text="count"></h2>
+		</div>
+		<ul x-init="renderPomostreak()" id="streakDisplay">
+			&nbsp;
+		</ul>
+	</div>
 	<div
 		class="h-2 hover:h-56 overflow-clip transition-all absolute w-full hover:text-black text-[#323232] bg-gray-300 bottom-0">
 		<p>
@@ -247,7 +256,19 @@
 		// toggleMute
 		toggleMute() {
 			this.playSound("button1");
+			this.stopSound("bugle");
+			this.stopSound("ding");
 			this.mute = !this.mute;
+		},
+
+		// Streaks
+		renderPomostreak() {
+			const streakCount = this.count;
+			const streakContainer = document.getElementById("streakDisplay");
+			for (let i = 0; i < streakCount; i++) {
+				const li = document.createElement("li");
+				streakContainer.appendChild(li);
+			}
 		}
 
 	};
