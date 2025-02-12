@@ -62,6 +62,14 @@ async fn ding_sound() -> impl Responder {
     }
 }
 
+#[get("/favicon.ico")]
+async fn get_favicon() -> Result<NamedFile, Box<dyn Error>> {
+    let base_path = env::current_dir()?.join("assets");
+    let file_path = base_path.join("favicon.ico");
+    let file = NamedFile::open(file_path)?;
+    Ok(file.use_last_modified(true))
+}
+
 #[get("/audio/{filename}")]
 async fn get_audio(path: web::Path<String>) -> Result<NamedFile, Box<dyn Error>> {
     let filename = path.into_inner();
@@ -74,7 +82,7 @@ async fn get_audio(path: web::Path<String>) -> Result<NamedFile, Box<dyn Error>>
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
-        App::new().service(index).service(
+        App::new().service(index).service(get_favicon).service(
             web::scope("/pomodoro")
                 .service(pomodoro)
                 .service(bugle_sound)
