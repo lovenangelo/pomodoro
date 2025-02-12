@@ -144,6 +144,7 @@
 
 			// Set the next time based on the current state
 			if (this.isBreakTime) {
+				this.addPomostreakTally();
 				this.playSound("ding");
 				const isLongBreakTime = this.count % 4 == 0 && this.nextBreakTime == 5;
 				this.currentTime = isLongBreakTime ? this.longBreakDuration * 60 : this.nextBreakTime * 60; // Convert minutes to seconds
@@ -269,6 +270,12 @@
 				const li = document.createElement("li");
 				streakContainer.appendChild(li);
 			}
+		},
+		addPomostreakTally() {
+			const streakCount = this.count;
+			const streakContainer = document.getElementById("streakDisplay");
+			const li = document.createElement("li");
+			streakContainer.appendChild(li);
 		}
 
 	};
