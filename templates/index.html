@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Pomodoro Timer</title>
+	<title>Pomostreak</title>
 	<!-- HTMX -->
 	<script src="https://unpkg.com/htmx.org@2.0.4"
 		integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
@@ -105,7 +105,6 @@
 		// Start or resume the countdown
 		countdown() {
 			this.playSound("button1");
-			this.count++;
 			if (!this.autoplay) {
 				this.stopSound("bugle");
 			}
@@ -148,12 +147,14 @@
 				this.playSound("ding");
 				const isLongBreakTime = this.count % 4 == 0 && this.nextBreakTime == 5;
 				this.currentTime = isLongBreakTime ? this.longBreakDuration * 60 : this.nextBreakTime * 60; // Convert minutes to seconds
+				this.count++;
 			} else {
 				this.playSound("bugle");
 				this.currentTime = this.nextSessionTime * 60; // Convert minutes to seconds
 			}
 			if (this.autoplay) {
 				this.countdown()
+				this.count++;
 			}
 		},
 
@@ -168,7 +169,6 @@
 			this.nextBreakTime = 5; // Reset to session time in seconds
 			this.isTimerActive = false;
 			this.isBreakTime = false;
-			this.count = 0;
 			this.stopSound();
 		},
 
