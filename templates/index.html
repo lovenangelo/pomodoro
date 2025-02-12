@@ -21,7 +21,26 @@
 	<div class="flex justify-center items-center h-full">
 		<div hx-get="/pomodoro/app" hx-trigger="load" hx-swap="innerHTML"></div>
 	</div>
-	<div class="h-2 absolute w-full bg-gray-300 bottom-0">
+	<div
+		class="h-2 hover:h-56 overflow-clip transition-all absolute w-full hover:text-black text-[#323232] bg-gray-300 bottom-0">
+		<p>
+			Made with love using HTMX, Tailwind, Alpine.js, Askama, and Actix Web
+			<br />
+			<br />
+			I developed this mini project because I want to make my own productivity tools.
+			<br />
+			<br />
+			I chose Alpine.js and HTMX to keep the app lightweight, allowing for efficient interactivity
+			without heavy JavaScript frameworks. Tailwind CSS helps me style the app quickly and maintain a
+			clean design system. For the backend, I used Actix Web and Askama to ensure fast, efficient
+			server-side rendering with Rust’s performance benefits.
+			<br />
+			<br />
+			Best,
+			<br />
+			Loven Angelo
+		</p>
+	</div>
 </body>
 
 </html>

@@ -1336,6 +1336,9 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .overflow-clip {
+    overflow: clip;
+  }
   .scroll-auto {
     scroll-behavior: auto;
   }
@@ -1849,6 +1852,9 @@
   .\[color\:red\]\/50\! {
     color: color-mix(in oklab, red 50%, transparent) !important;
   }
+  .text-\[\#323232\] {
+    color: #323232;
+  }
   .text-black {
     color: var(--color-black);
   }
@@ -2307,6 +2313,48 @@
   .transform-view {
     transform-box: view-box;
   }
+  .hover\:h-8 {
+    &:hover {
+      @media (hover: hover) {
+        height: calc(var(--spacing) * 8);
+      }
+    }
+  }
+  .hover\:h-12 {
+    &:hover {
+      @media (hover: hover) {
+        height: calc(var(--spacing) * 12);
+      }
+    }
+  }
+  .hover\:h-16 {
+    &:hover {
+      @media (hover: hover) {
+        height: calc(var(--spacing) * 16);
+      }
+    }
+  }
+  .hover\:h-24 {
+    &:hover {
+      @media (hover: hover) {
+        height: calc(var(--spacing) * 24);
+      }
+    }
+  }
+  .hover\:h-56 {
+    &:hover {
+      @media (hover: hover) {
+        height: calc(var(--spacing) * 56);
+      }
+    }
+  }
+  .hover\:h-64 {
+    &:hover {
+      @media (hover: hover) {
+        height: calc(var(--spacing) * 64);
+      }
+    }
+  }
   .hover\:cursor-default {
     &:hover {
       @media (hover: hover) {
@@ -2340,6 +2388,13 @@
       @media (hover: hover) {
         --tw-font-weight: var(--font-weight-bold);
         font-weight: var(--font-weight-bold);
+      }
+    }
+  }
+  .hover\:text-black {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-black);
       }
     }
   }
