@@ -17,9 +17,19 @@
 		rel="stylesheet">
 </head>
 
-<body class="font-[Roboto_Mono] bg-[#323232] h-screen relative select-none">
+<body x-data="timer" class="font-[Roboto_Mono] bg-[#323232] h-screen relative select-none">
 	<div class="flex justify-center items-center h-full">
 		<div hx-get="/pomodoro/app" hx-trigger="load" hx-swap="innerHTML"></div>
+	</div>
+	<div :class="isBreakTime && !isTimerActive ? 'absolute top-24 right-24' : 'hidden'">
+		<img src="https://media.giphy.com/media/geYwtodB9AiI0/giphy.gif?cid=790b76113poz3igy4jf5hr0rlrlmzs47ygatyamjtfms48ru&ep=v1_gifs_search&rid=giphy.gif&ct=g"
+			alt="Funny Cat GIF" class="w-full max-w-md mx-auto">
+		<h1 class="mt-2 text-white">Hey! take a break</h1>
+	</div>
+	<div :class="!isBreakTime && !isTimerActive && count !== 0 ? 'absolute top-24 right-24' : 'hidden'">
+		<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3Ywc3Z2ZzE0YWhlaGxhb2ZkOTd0Z3E5ZHB0aXRycDJ3emplamE4cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/CjmvTCZf2U3p09Cn0h/giphy.gif"
+			alt="Funny Cat GIF" class="w-full max-w-md mx-auto">
+		<h1 class="mt-2 text-white">One more session, let's go!!!</h1>
 	</div>
 	<div
 		class="h-2 hover:h-56 overflow-clip transition-all absolute w-full hover:text-black text-[#323232] bg-gray-300 bottom-0">
@@ -44,3 +54,201 @@
 </body>
 
 </html>
+
+<script>
+	const timer = {
+		count: 0,
+		autoplay: false,
+		longBreakDuration: 15,
+		mute: false,
+		currentTime: 25 * 60, // Default session time in minutes
+		nextSessionTime: 25, // Default session time
+		nextBreakTime: 5, // Default break time
+		isBreakTime: false, // Tracks if it's break time
+		isTimerActive: false, // Tracks if the timer is running
+		intervalId: null, // Stores the interval ID
+		// Getter for formatted minutes
+		get minutes() {
+			return Math.floor(this.currentTime / 60);
+		},
+
+		// Getter for formatted seconds
+		get seconds() {
+			return this.currentTime % 60;
+		},
+
+		// Format time values to always show 2 digits
+		format(value) {
+			return value < 10 ? `0${value}` : value.toString();
+		},
+
+		// Generate the label based on the timer state
+		label() {
+			if (!this.isTimerActive && !this.isBreakTime) {
+				return "Start Session";
+			} else if (!this.isTimerActive && this.isBreakTime) {
+				return "Start Break";
+			} else {
+				return this.isBreakTime ? "Timer Started | Break Time" : "Timer Started | Focus Time";
+			}
+		},
+
+		// Start or resume the countdown
+		countdown() {
+			this.playSound("button1");
+			this.count++;
+			if (!this.autoplay) {
+				this.stopSound("bugle");
+			}
+			if (!this.isTimerActive) {
+				this.isTimerActive = true;
+				this.startSession(this.currentTime);
+			}
+		},
+
+		// Start the session or break
+		startSession(minutes) {
+			const expiry = new Date(Date.now() + minutes * 1000); // Convert to milliseconds
+			this.expiry_date = expiry;
+
+			if (this.intervalId === null) {
+				this.intervalId = setInterval(() => {
+					this.setRemaining();
+				}, 1000);
+			}
+		},
+
+		// Update the remaining time
+		setRemaining() {
+			const diff = this.expiry_date - Date.now();
+			this.currentTime = Math.max(0, Math.floor(diff / 1000));
+
+			if (this.currentTime === 0) {
+				this.next(); // Transition to the next state (session or break)
+			}
+		},
+
+		// Transition to the next state (session or break)
+		next() {
+			this.removeInterval(); // Clear the current interval
+			this.isTimerActive = false;
+			this.isBreakTime = !this.isBreakTime; // Toggle between session and break
+
+			// Set the next time based on the current state
+			if (this.isBreakTime) {
+				this.playSound("ding");
+				const isLongBreakTime = this.count % 4 == 0 && this.nextBreakTime == 5;
+				this.currentTime = isLongBreakTime ? this.longBreakDuration * 60 : this.nextBreakTime * 60; // Convert minutes to seconds
+			} else {
+				this.playSound("bugle");
+				this.currentTime = this.nextSessionTime * 60; // Convert minutes to seconds
+			}
+			if (this.autoplay) {
+				this.countdown()
+			}
+		},
+
+		// Reset the timer to the initial state
+		reset() {
+			if (this.nextSessionTime != 25 || this.nextBreakTime != 5 || this.currentTime != 25 * 60) {
+				this.playSound("button1");
+			}
+			this.removeInterval();
+			this.currentTime = 25 * 60; // Reset to session time in seconds
+			this.nextSessionTime = 25; // Reset to session time in seconds
+			this.nextBreakTime = 5; // Reset to session time in seconds
+			this.isTimerActive = false;
+			this.isBreakTime = false;
+			this.count = 0;
+			this.stopSound();
+		},
+
+		// Clear the interval
+		removeInterval() {
+			if (this.intervalId) {
+				clearInterval(this.intervalId);
+				this.intervalId = null;
+			}
+		},
+
+		// Increment session time
+		incrementSession() {
+			this.playSound("button2");
+			this.nextSessionTime++;
+			if (!this.isTimerActive) {
+				this.updateMainTime();
+			}
+		},
+
+		// Decrement session time
+		decrementSession() {
+			if (this.nextSessionTime > 1) {
+				this.playSound("button2");
+				this.nextSessionTime--;
+				if (!this.isTimerActive) {
+					this.updateMainTime();
+				}
+			}
+		},
+
+		// Increment break time
+		incrementBreak() {
+			this.playSound("button2");
+			this.nextBreakTime++;
+			if (!this.isTimerActive) {
+				this.updateMainTime();
+			}
+		},
+
+		// Decrement break time
+		decrementBreak() {
+			if (this.nextBreakTime > 1) {
+				this.playSound("button2");
+				this.nextBreakTime--;
+				if (!this.isTimerActive) {
+					this.updateMainTime();
+				}
+			}
+		},
+
+		// Update the main time display
+		updateMainTime() {
+			if (this.isBreakTime) {
+				this.currentTime = this.nextBreakTime * 60; // Convert minutes to seconds
+			} else {
+				this.currentTime = this.nextSessionTime * 60; // Convert minutes to seconds
+			}
+		},
+
+		// Playing sounds
+		playSound(soundname) {
+			if (!this.mute) {
+				var audio = document.getElementById(soundname);
+				audio.volume = 0.2; // adjust volume
+				audio.pause(); // Stop the currently playing sound
+				audio.currentTime = 0; // Reset the audio to start from the beginning
+				audio.play();
+			}
+		},
+
+		// Playing sounds
+		stopSound(soundname) {
+			var thissound = document.getElementById(soundname);
+			if (thissound != null)
+				thissound.pause();
+		},
+
+		// toggleAutoplay
+		toggleAutoplay() {
+			this.playSound("button1");
+			this.autoplay = !this.autoplay;
+		},
+
+		// toggleMute
+		toggleMute() {
+			this.playSound("button1");
+			this.mute = !this.mute;
+		}
+
+	};
+</script>
