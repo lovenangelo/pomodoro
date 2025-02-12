@@ -20,6 +20,10 @@ struct SoundTemplate<'a> {
     id: &'a str,
 }
 
+#[derive(Template)]
+#[template(path = "gif.html")]
+struct GifTemplate;
+
 #[get("/")]
 async fn index() -> impl Responder {
     Index
@@ -62,6 +66,11 @@ async fn ding_sound() -> impl Responder {
     }
 }
 
+#[get("/gifs")]
+async fn gifs() -> impl Responder {
+    GifTemplate {}
+}
+
 #[get("/favicon.ico")]
 async fn get_favicon() -> Result<NamedFile, Box<dyn Error>> {
     let base_path = env::current_dir()?.join("assets");
@@ -90,6 +99,7 @@ async fn main() -> std::io::Result<()> {
                 .service(button_sound_2)
                 .service(ding_sound)
                 .service(get_audio)
+                .service(gifs)
                 .service(Files::new("/styles", "./styles").show_files_listing()),
         )
     })

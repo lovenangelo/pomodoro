@@ -18,18 +18,9 @@
 </head>
 
 <body x-data="timer" class="font-[Roboto_Mono] bg-[#323232] h-screen relative select-none">
+	<div id="gif-content"></div>
 	<div class="flex justify-center items-center h-full">
 		<div hx-get="/pomodoro/app" hx-trigger="load" hx-swap="innerHTML"></div>
-	</div>
-	<div :class="isBreakTime && !isTimerActive ? 'absolute top-24 right-24' : 'hidden'">
-		<img src="https://media.giphy.com/media/geYwtodB9AiI0/giphy.gif?cid=790b76113poz3igy4jf5hr0rlrlmzs47ygatyamjtfms48ru&ep=v1_gifs_search&rid=giphy.gif&ct=g"
-			alt="Funny Cat GIF" class="w-full max-w-md mx-auto">
-		<h1 class="mt-2 text-white">Hey! take a break</h1>
-	</div>
-	<div :class="!isBreakTime && !isTimerActive && count !== 0 ? 'absolute top-24 right-24' : 'hidden'">
-		<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3Ywc3Z2ZzE0YWhlaGxhb2ZkOTd0Z3E5ZHB0aXRycDJ3emplamE4cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/CjmvTCZf2U3p09Cn0h/giphy.gif"
-			alt="Funny Cat GIF" class="w-full max-w-md mx-auto">
-		<h1 class="mt-2 text-white">One more session, let's go!!!</h1>
 	</div>
 	<div class="absolute left-24 top-50 h-min flex flex-col italic items-start p-4 text-white">
 		<div class="flex space-x-2 mb-2">
@@ -146,7 +137,7 @@
 			if (this.isBreakTime) {
 				this.addPomostreakTally();
 				this.playSound("ding");
-				const isLongBreakTime = this.count % 4 == 0 && this.nextBreakTime == 5;
+				const isLongBreakTime = this.count != 0 && this.count % 4 == 0 && this.nextBreakTime == 5;
 				this.currentTime = isLongBreakTime ? this.longBreakDuration * 60 : this.nextBreakTime * 60; // Convert minutes to seconds
 				this.count++;
 			} else {
@@ -155,7 +146,6 @@
 			}
 			if (this.autoplay) {
 				this.countdown()
-				this.count++;
 			}
 		},
 

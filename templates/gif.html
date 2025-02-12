@@ -1,0 +1,10 @@
+<div :class="isBreakTime && !isTimerActive ? 'absolute top-24 right-24' : 'hidden'">
+	<img src="https://media.giphy.com/media/geYwtodB9AiI0/giphy.gif?cid=790b76113poz3igy4jf5hr0rlrlmzs47ygatyamjtfms48ru&ep=v1_gifs_search&rid=giphy.gif&ct=g"
+		alt="Funny Cat GIF" class="w-full max-w-md mx-auto">
+	<h1 class="mt-2 text-white">Hey! take a break</h1>
+</div>
+<div :class="!isBreakTime && !isTimerActive && count !== 0 ? 'absolute top-24 right-24' : 'hidden'">
+	<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3Ywc3Z2ZzE0YWhlaGxhb2ZkOTd0Z3E5ZHB0aXRycDJ3emplamE4cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/CjmvTCZf2U3p09Cn0h/giphy.gif"
+		alt="Funny Cat GIF" class="w-full max-w-md mx-auto">
+	<h1 class="mt-2 text-white">One more session, let's go!!!</h1>
+</div>
